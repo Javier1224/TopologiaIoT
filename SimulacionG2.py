@@ -7,6 +7,7 @@ from mininet.node import OVSBridge
 from mininet.log import setLogLevel, info
 from mininet.link import TCLink #Con esta libreria se puede ajustar parametros de retraso, ancho de banda
 import sys
+import time
 
 def startNetwork():
   
@@ -21,16 +22,19 @@ def startNetwork():
     net.addHost(Dispositivos[i],ip="10.0.0."+str(i+1)+"/24")
     # Se vinculan los host al switch con los parametros predefinidos
     #net.addLink(Dispositivos[i],"S1", bw=100, delay='5ms', loss=0.01) # 5G
-    net.addLink(Dispositivos[i],"S1", bw=100, delay='5ms', loss=0.01)
+    if Dispositivos[i] == "CamMovi" or Dispositivos[i] == "CamSeg":
+      net.addLink(Dispositivos[i],"S1", bw=100, delay='5ms', loss=0.01)# Hace un enlace del tipo 5G
+    else:
+      net.addLink(Dispositivos[i],"S1", bw=50, delay='30ms', loss=0.1)# Hace un enlace del tipo 4G
   net.start()
   
   #["stnMlogica","50K","250K","u"],
   PruebasPing = [
-  ["CamMovi","50M","8192K","u","3"],
-  ["SensAud","300","800","u","1"],
-  ["Velocimet","10M","16K","t","2"],
-  ["SenPeso","5M","80K","t","1"],
-  ["CamSeg","150M","8192K","u","1"]]
+  ["CamMovi","50M","8192K","u"],
+  ["SensAud","300","800","u"],
+  ["Velocimet","10M","16K","t"],
+  ["SenPeso","5M","80K","t"],
+  ["CamSeg","150M","8192K","u"]]
 
   IP_dest = str(net.get("PtoRecol").IP())
   option=0
@@ -66,12 +70,18 @@ def startNetwork():
       for host in range(len(PruebasPing)):
         if PruebasPing[host][3] == "u":# Simula dispositivos UDP
           print("Prueba del sensor: ",PruebasPing[host][0],"##########################################################################################")
-          client_output = net.get(PruebasPing[host][0]).cmd("iperf -u -c " + IP_dest + " -n "+PruebasPing[host][1]+" -b "+PruebasPing[host][2]+" -p 5002 > /tmp/h1.txt &")  # Cliente con sus parametros
-          print(client_output)
+          client_output = net.get(PruebasPing[host][0]).cmd("iperf -u -c " + IP_dest + " -n "+PruebasPing[host][1]+" -b "+PruebasPing[host][2]+" -p 5002 > /tmp/"+PruebasPing[host][0]+".txt &")  # Cliente con sus parametros
+          time.sleep(2)
+          output = net.get(PruebasPing[host][0]).cmd("cat /tmp/"+PruebasPing[host][0]+".txt")
+          print(output)
+          #print(client_output)
         else:# Simula dispositivos TCP
           print("Prueba del sensor: ",PruebasPing[host][0],"##########################################################################################")
-          client_output = net.get(PruebasPing[host][0]).cmd("iperf -c " + IP_dest + " -n "+PruebasPing[host][1]+" -l "+PruebasPing[host][2]," -i 1")  # Cliente con sus parametros
-          print(client_output)
+          client_output = net.get(PruebasPing[host][0]).cmd("iperf -c " + IP_dest + " -n "+PruebasPing[host][1]+" -l "+PruebasPing[host][2]," -i 1 > /tmp/"+PruebasPing[host][0]+".txt &")  # Cliente con sus parametros
+          time.sleep(2)
+          output = net.get(PruebasPing[host][0]).cmd("cat /tmp/"+PruebasPing[host][0]+".txt")
+          print(output)
+          #print(client_output)
       option = 0
     #===================================================
     elif option == 6:
