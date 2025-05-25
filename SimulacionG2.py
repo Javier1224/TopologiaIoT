@@ -21,7 +21,6 @@ def startNetwork():
     # Se crean los hosts 
     net.addHost(Dispositivos[i],ip="10.0.0."+str(i+1)+"/24")
     # Se vinculan los host al switch con los parametros predefinidos
-    #net.addLink(Dispositivos[i],"S1", bw=100, delay='5ms', loss=0.01) # 5G
     if Dispositivos[i] == "CamMovi" or Dispositivos[i] == "CamSeg":
       net.addLink(Dispositivos[i],"S1", bw=100, delay='5ms', loss=0.01)# Hace un enlace del tipo 5G
     else:
@@ -45,7 +44,8 @@ def startNetwork():
     info('\n |-> 3 - Imprimir hosts')
     info('\n |-> 4 - IPERF')
     info('\n |-> 5 - PRUEBAS')
-    info('\n |-> 6 - SALIR')
+    info('\n |-> 6 - Ver instante')
+    info('\n |-> 7 - SALIR')
     info('\n==========================================\n')
     
     opt = input('DIGITE UNA option: ')
@@ -65,23 +65,18 @@ def startNetwork():
     #===================================================
     if option == 5:
       net.get("PtoRecol").cmd("iperf -s > /dev/null 2>&1 & iperf -s -u -p 5002 > /dev/null 2>&1 &") # Escucha el servidor con un puerto TCP y otro en UDP
-      #net.get("PtoRecol").cmd("iperf -s -u -p 5002> /dev/null 2>&1 &")
       
       for host in range(len(PruebasPing)):
-        if PruebasPing[host][3] == "u":# Simula dispositivos UDP
+        # Simula dispositivos UDP
+        if PruebasPing[host][3] == "u":
           print("Prueba del sensor: ",PruebasPing[host][0],"##########################################################################################")
-          client_output = net.get(PruebasPing[host][0]).cmd("iperf -u -c " + IP_dest + " -n "+PruebasPing[host][1]+" -b "+PruebasPing[host][2]+" -p 5002 > /tmp/"+PruebasPing[host][0]+".txt &")  # Cliente con sus parametros
-          time.sleep(2)
-          output = net.get(PruebasPing[host][0]).cmd("cat /tmp/"+PruebasPing[host][0]+".txt")
-          print(output)
-          #print(client_output)
-        else:# Simula dispositivos TCP
+          client_output = net.get(PruebasPing[host][0]).cmd("iperf -u -c " + IP_dest + " -n "+PruebasPing[host][1]+" -b "+PruebasPing[host][2]+" -p 5002")  # Cliente con sus parametros
+          print(client_output)
+        # Simula dispositivos TCP
+        else:
           print("Prueba del sensor: ",PruebasPing[host][0],"##########################################################################################")
-          client_output = net.get(PruebasPing[host][0]).cmd("iperf -c " + IP_dest + " -n "+PruebasPing[host][1]+" -l "+PruebasPing[host][2]," -i 1 > /tmp/"+PruebasPing[host][0]+".txt &")  # Cliente con sus parametros
-          time.sleep(2)
-          output = net.get(PruebasPing[host][0]).cmd("cat /tmp/"+PruebasPing[host][0]+".txt")
-          print(output)
-          #print(client_output)
+          client_output = net.get(PruebasPing[host][0]).cmd("iperf -c " + IP_dest + " -n "+PruebasPing[host][1]+" -l "+PruebasPing[host][2]," -i 1")  # Cliente con sus parametros
+          print(client_output)
       option = 0
     #===================================================
     elif option == 6:
