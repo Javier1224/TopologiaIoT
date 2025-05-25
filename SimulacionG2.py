@@ -13,7 +13,10 @@ def startNetwork():
   
   net = Mininet(switch=OVSBridge , link=TCLink)# hay que agregar los tipos de enlaces
   # Hosts / Sensores
-  Dispositivos = ["CamMovi","SensAud","Velocimet","stnMlogica","SenPeso","CamSeg","PtoRecol"]
+  #Dispositivos = ["CamMovi","SensAud","Velocimet","stnMlogica","SenPeso","CamSeg","PtoRecol"]
+  Dispositivos1 = ["CamMovi1","CamMovi2","CamMovi3","SensAud","Velocimet1","Velocimet2","SenPeso","CamSeg","PtoRecol"]
+  Dispositivos2 = ["CamMovi1","CamMovi2","CamMovi3","CamMovi4","SensAud1","SensAud2","Velocimet","stnMlogica","SenPeso","CamSeg1","CamSeg2","PtoRecol"]
+  Dispositivos = Dispositivos1
   # Switch / Antena
   net.addSwitch("S1")
   # Se crean los hosts y se conectan al switch
@@ -28,12 +31,37 @@ def startNetwork():
   net.start()
   
   #["stnMlogica","50K","250K","u"],
+  """
   PruebasPing = [
   ["CamMovi","50M","8192K","u"],
   ["SensAud","300","800","u"],
   ["Velocimet","10M","16K","t"],
   ["SenPeso","5M","80K","t"],
   ["CamSeg","150M","8192K","u"]]
+  """
+  PruebasPing1 = [
+  ["CamMovi1","50M","8192K","u"],
+  ["CamMovi2","50M","8192K","u"],
+  ["CamMovi3","50M","8192K","u"],
+  ["SensAud","300","800","u"],
+  ["Velocimet1","10M","16K","t"],
+  ["Velocimet2","10M","16K","t"],
+  ["SenPeso","5M","80K","t"],
+  ["CamSeg","150M","8192K","u"]]
+  
+  PruebasPing2 = [
+  ["CamMovi1","50M","8192K","u"],
+  ["CamMovi2","50M","8192K","u"],
+  ["CamMovi3","50M","8192K","u"],
+  ["CamMovi4","50M","8192K","u"],
+  ["SensAud1","300","800","u"],
+  ["SensAud2","300","800","u"],
+  ["Velocimet","10M","16K","t"],
+  ["stnMlogica","50K","250K","u"],
+  ["SenPeso","5M","80K","t"],
+  ["CamSeg1","150M","8192K","u"],
+  ["CamSeg2","150M","8192K","u"]]
+  
 
   IP_dest = str(net.get("PtoRecol").IP())
   option=0
@@ -41,7 +69,7 @@ def startNetwork():
     info('\n=========================================')
     info('\n |-> 1 - LINEA DE COMANDOS MININET')
     info('\n |-> 2 - Comprobar conectivad total (pingall)')
-    info('\n |-> 3 - Imprimir hosts')
+    info('\n |-> 3 - Imprimir configuracion de la red')
     info('\n |-> 4 - IPERF')
     info('\n |-> 5 - PRUEBAS')
     info('\n |-> 6 - Ver instante')
@@ -56,7 +84,7 @@ def startNetwork():
       option = 0
     #===================================================
     if option == 3:
-      print(net.hosts)
+      print(net.dump())
       option = 0
     #===================================================
     if option == 4:
@@ -64,6 +92,7 @@ def startNetwork():
       option = 0
     #===================================================
     if option == 5:
+      PruebasPing = PruebasPing1
       net.get("PtoRecol").cmd("iperf -s > /dev/null 2>&1 & iperf -s -u -p 5002 > /dev/null 2>&1 &") # Escucha el servidor con un puerto TCP y otro en UDP
       
       for host in range(len(PruebasPing)):
